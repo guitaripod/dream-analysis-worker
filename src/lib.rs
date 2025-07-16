@@ -10,8 +10,13 @@ struct DreamRequest {
 }
 
 #[derive(Serialize)]
+struct AnalysisContent {
+    response: String,
+}
+
+#[derive(Serialize)]
 struct DreamResponse {
-    analysis: String,
+    analysis: AnalysisContent,
 }
 
 #[derive(Serialize)]
@@ -125,8 +130,12 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         "Unable to analyze the dream at this time.".to_string()
     };
 
-    Response::from_json(&DreamResponse { analysis })
-        .map(|resp| {
-            resp.with_headers(get_cors_headers())
-        })
+    Response::from_json(&DreamResponse { 
+        analysis: AnalysisContent { 
+            response: analysis 
+        }
+    })
+    .map(|resp| {
+        resp.with_headers(get_cors_headers())
+    })
 }
