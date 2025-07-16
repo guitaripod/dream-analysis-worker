@@ -45,7 +45,6 @@ fn get_cors_headers() -> Headers {
 
 #[event(fetch)]
 async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
-    // Handle CORS preflight requests
     if req.method() == Method::Options {
         return Response::empty()
             .map(|resp| {
@@ -53,7 +52,6 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
             });
     }
 
-    // Only allow POST requests
     if req.method() != Method::Post {
         return Response::error("Please use POST method", 405)
             .map(|resp| {
@@ -61,7 +59,6 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
             });
     }
 
-    // Parse the JSON body
     let body = match req.json::<DreamRequest>().await {
         Ok(body) => body,
         Err(e) => {
@@ -70,14 +67,12 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         }
     };
 
-    // Validate dream prompt
     let dream_prompt = body.dream_prompt.trim();
     if dream_prompt.is_empty() {
         return Response::error("Missing dreamPrompt in request body", 400)
             .map(|resp| resp.with_headers(get_cors_headers()));
     }
     
-    // Check dream prompt length
     if dream_prompt.len() > MAX_DREAM_LENGTH {
         return Response::error(
             format!("Dream prompt is too long. Maximum length is {} characters", MAX_DREAM_LENGTH), 
@@ -85,7 +80,6 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         ).map(|resp| resp.with_headers(get_cors_headers()));
     }
 
-    // Prepare the chat messages for the AI
     let chat = AiChat {
         messages: vec![
             AiMessage {
@@ -99,7 +93,6 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         ],
     };
 
-    // Get AI binding
     let ai = match env.ai("AI") {
         Ok(ai) => ai,
         Err(e) => {
@@ -108,7 +101,6 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         }
     };
 
-    // Run the AI model
     let ai_response: serde_json::Value = match ai
         .run("@cf/mistral/mistral-7b-instruct-v0.1", &chat)
         .await
@@ -120,11 +112,9 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         }
     };
 
-    // Extract the response text - the AI response is likely a string directly
     let analysis = if let Some(text) = ai_response.as_str() {
         text.to_string()
     } else if let Some(obj) = ai_response.as_object() {
-        // Try different possible response formats
         obj.get("response")
             .or_else(|| obj.get("result"))
             .or_else(|| obj.get("output"))
@@ -135,7 +125,6 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         "Unable to analyze the dream at this time.".to_string()
     };
 
-    // Return the AI's response with CORS headers
     Response::from_json(&DreamResponse { analysis })
         .map(|resp| {
             resp.with_headers(get_cors_headers())
