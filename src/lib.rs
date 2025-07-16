@@ -106,8 +106,19 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         }
     };
 
+    #[derive(Serialize)]
+    struct AiRequest {
+        messages: Vec<AiMessage>,
+        max_tokens: u32,
+    }
+
+    let request = AiRequest {
+        messages: chat.messages,
+        max_tokens: 1024,
+    };
+
     let ai_response: serde_json::Value = match ai
-        .run("@cf/mistral/mistral-7b-instruct-v0.1", &chat)
+        .run("@hf/mistral/mistral-7b-instruct-v0.2", &request)
         .await
     {
         Ok(response) => response,
