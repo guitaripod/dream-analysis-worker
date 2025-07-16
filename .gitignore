@@ -170,3 +170,8 @@ dist
 
 .dev.vars
 .wrangler/
+
+# Rust/WASM build artifacts
+target/
+build/
+Cargo.lock

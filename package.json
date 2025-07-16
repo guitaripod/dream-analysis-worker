@@ -5,7 +5,8 @@
 	"scripts": {
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
-		"start": "wrangler dev"
+		"start": "wrangler dev",
+		"build": "cargo install -q worker-build && PATH=$HOME/.cargo/bin:$PATH worker-build --release"
 	},
 	"devDependencies": {
 		"wrangler": "^4.24.4"
