@@ -30,13 +30,13 @@ struct AiChat {
     messages: Vec<AiMessage>,
 }
 
-const SYSTEM_PROMPT: &str = "You are a knowledgeable and approachable sleep and dream expert. 
-                      Analyze dream descriptions and provide insights, but maintain a tone 
-                      that suggests you're offering possibilities rather than definitive answers. 
+const SYSTEM_PROMPT: &str = "You are a knowledgeable and approachable sleep and dream expert.
+                      Analyze dream descriptions and provide insights, but maintain a tone
+                      that suggests you're offering possibilities rather than definitive answers.
                       Suggest a few potential reasons for why the dream might have occurred.
-                      
+
                       The response should read just like another human directly responding naturally.
-                      
+
                       This is a one-off response and must not prompt the user to continue the conversation.";
 
 fn get_cors_headers() -> Headers {
@@ -77,10 +77,10 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         return Response::error("Missing dreamPrompt in request body", 400)
             .map(|resp| resp.with_headers(get_cors_headers()));
     }
-    
+
     if dream_prompt.len() > MAX_DREAM_LENGTH {
         return Response::error(
-            format!("Dream prompt is too long. Maximum length is {} characters", MAX_DREAM_LENGTH), 
+            format!("Dream prompt is too long. Maximum length is {} characters", MAX_DREAM_LENGTH),
             400
         ).map(|resp| resp.with_headers(get_cors_headers()));
     }
@@ -130,9 +130,9 @@ async fn main(mut req: Request, env: Env, _ctx: Context) -> Result<Response> {
         "Unable to analyze the dream at this time.".to_string()
     };
 
-    Response::from_json(&DreamResponse { 
-        analysis: AnalysisContent { 
-            response: analysis 
+    Response::from_json(&DreamResponse {
+        analysis: AnalysisContent {
+            response: analysis
         }
     })
     .map(|resp| {
