@@ -20,7 +20,7 @@ This service analyzes dream descriptions and provides thoughtful, conversational
 ### Endpoint
 
 ```
-POST https://your-worker-name.workers.dev/
+POST https://dream-expert-analysis.guitaripod.workers.dev
 ```
 
 ### Request
